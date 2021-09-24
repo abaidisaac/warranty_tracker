@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -40,5 +38,16 @@ class FireStore {
 
   deleteItem(user, id) async {
     firestore.collection(user).doc(id).delete();
+  }
+
+  shareItem(user, item) async {
+    await firestore
+        .collection('users')
+        .doc('emails')
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+      dynamic data = documentSnapshot.data();
+      firestore.collection(data[user]).add(item);
+    });
   }
 }

@@ -18,10 +18,11 @@ class Items extends StatefulWidget {
 }
 
 class ItemsState extends State<Items> {
-  dynamic name, value, date;
+  dynamic name, value, date, users, user;
   final _formkey = GlobalKey<FormState>();
   FireStore fireStore = FireStore();
   AuthService auth = AuthService();
+  final _formkey1 = GlobalKey<FormState>();
 
   Widget build(BuildContext context) {
     if (date == null) {
@@ -30,6 +31,7 @@ class ItemsState extends State<Items> {
     if (name == null) {
       name = widget.item['name'];
     }
+
     return Scaffold(
         backgroundColor: Colors.grey.shade200,
         body: SingleChildScrollView(
@@ -145,6 +147,75 @@ class ItemsState extends State<Items> {
                         style: GoogleFonts.poppins(
                             fontSize: 20, fontWeight: FontWeight.w600),
                       ),
+                    ),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.green,
+                        minimumSize:
+                            Size(MediaQuery.of(context).size.width * 0.5, 50),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30)),
+                      ),
+                      onPressed: () async {
+                        return showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                  child: Container(
+                                      height: 160,
+                                      child: Form(
+                                          key: _formkey1,
+                                          child: Column(children: [
+                                            SizedBox(height: 10),
+                                            searchField('Email ID',
+                                                Icon(Icons.person_add_alt_1)),
+                                            SizedBox(height: 20),
+                                            ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                primary: Colors.red,
+                                                minimumSize: Size(
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.5,
+                                                    50),
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            30)),
+                                              ),
+                                              onPressed: () async {
+                                                if (_formkey1.currentState!
+                                                    .validate()) {
+                                                  _formkey1.currentState!
+                                                      .save();
+                                                  fireStore.shareItem(user, {
+                                                    'name': widget.item['name'],
+                                                    'image':
+                                                        widget.item['image'],
+                                                    'expiry':
+                                                        widget.item['expiry']
+                                                  });
+                                                  Navigator.pop(context);
+                                                }
+                                              },
+                                              child: Text(
+                                                'SEND',
+                                                style: GoogleFonts.poppins(
+                                                    fontSize: 20,
+                                                    fontWeight:
+                                                        FontWeight.w600),
+                                              ),
+                                            )
+                                          ]))));
+                            });
+                      },
+                      child: Text(
+                        'SHARE',
+                        style: GoogleFonts.poppins(
+                            fontSize: 20, fontWeight: FontWeight.w600),
+                      ),
                     )
                   ],
                 ))));
@@ -181,6 +252,42 @@ class ItemsState extends State<Items> {
       onSaved: (value) {
         setState(() {
           name = value.toString();
+        });
+      },
+    );
+  }
+
+  Widget searchField(item, icon) {
+    return TextFormField(
+      style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+      decoration: InputDecoration(
+          labelStyle: GoogleFonts.poppins(),
+          filled: true,
+          fillColor: Colors.white,
+          prefixIcon: icon,
+          hintText: item,
+          focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+              borderSide: BorderSide.none),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+              borderSide: BorderSide.none),
+          errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+              borderSide: BorderSide.none),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(50),
+              borderSide: BorderSide.none),
+          floatingLabelBehavior: FloatingLabelBehavior.never,
+          contentPadding: EdgeInsets.fromLTRB(20, 0, 0, 0)),
+      validator: (String? value) {
+        if (value!.isEmpty) {
+          return 'Empty';
+        }
+      },
+      onSaved: (value) {
+        setState(() {
+          user = value.toString();
         });
       },
     );
